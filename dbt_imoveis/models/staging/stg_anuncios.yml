@@ -1,0 +1,92 @@
+version: 2
+
+models:
+  - name: stg_anuncios
+    description: >
+      Camada Staging do Lakehouse. View relacional que faz o parsing e a tipagem
+      dos atributos estruturados e semiestruturados contidos no JSONB da tabela raw.landing_anuncios.
+    columns:
+      - name: landing_id
+        description: "Identificador único sequencial da linha de pouso original (raw.landing_anuncios.id)."
+        tests:
+          - unique
+          - not_null
+
+      - name: source_portal
+        description: "Portal imobiliário de origem do anúncio (ex: quinto_andar, chaves_na_mao, zap_imoveis)."
+        tests:
+          - not_null
+
+      - name: portal_listing_id
+        description: "Identificador único do anúncio atribuído pelo portal de origem."
+        tests:
+          - not_null
+
+      - name: scraped_at
+        description: "Data e hora UTC em que o scraper coletou o anúncio."
+        tests:
+          - not_null
+
+      - name: batch_id
+        description: "Identificador do lote de execução do scraper."
+        tests:
+          - not_null
+
+      - name: url
+        description: "URL canônica do anúncio no portal de origem."
+
+      - name: titulo
+        description: "Título ou chamada principal do anúncio imobiliário."
+
+      - name: preco
+        description: "Preço de venda anunciado em Reais (BRL), tipado como NUMERIC(12, 2)."
+
+      - name: valor_condominio
+        description: "Taxa mensal de condomínio em Reais (BRL), tipada como NUMERIC(10, 2)."
+
+      - name: valor_iptu
+        description: "Valor do IPTU (mensal ou anual informado) em Reais (BRL), tipado como NUMERIC(10, 2)."
+
+      - name: area_util_m2
+        description: "Área útil/privativa do imóvel em metros quadrados, tipada como NUMERIC(8, 2)."
+
+      - name: quartos
+        description: "Quantidade de quartos/dormitórios disponíveis no imóvel."
+
+      - name: banheiros
+        description: "Quantidade de banheiros do imóvel."
+
+      - name: vagas
+        description: "Quantidade de vagas de garagem vinculadas ao imóvel."
+
+      - name: rua
+        description: "Logradouro ou endereço do imóvel."
+
+      - name: bairro
+        description: "Nome do bairro onde o imóvel está localizado."
+
+      - name: cidade
+        description: "Cidade onde o imóvel está localizado."
+
+      - name: estado
+        description: "UF/Estado de localização do imóvel."
+
+      - name: cep
+        description: "Código de Endereçamento Postal (CEP)."
+
+      - name: latitude
+        description: "Coordenada geográfica de latitude (WGS 84)."
+
+      - name: longitude
+        description: "Coordenada geográfica de longitude (WGS 84)."
+
+      - name: comodidades
+        description: "Lista de comodidades e infraestrutura (JSONB array)."
+
+      - name: tipo_anunciante
+        description: "Tipo de anunciante (ex: PROPRIETARIO, IMOBILIARIA)."
+
+      - name: carregado_em
+        description: "Timestamp de inserção da linha na tabela raw do Data Lakehouse."
+        tests:
+          - not_null

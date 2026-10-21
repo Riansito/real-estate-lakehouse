@@ -1,0 +1,19 @@
+# ==============================================================================
+# Dependências do Projeto: Scraping & Lakehouse de Imóveis
+# ==============================================================================
+
+# Coleta de Dados (Web Scraping)
+scrapy>=2.11.0
+fake-useragent>=1.5.0
+twisted>=24.0.0
+
+# Armazenamento & Cloud Storage (Data Lake / S3)
+boto3>=1.34.0
+python-dotenv>=1.0.0
+
+# Banco de Dados & PostgreSQL
+psycopg[binary]>=3.1.0
+
+# Utilitários, Logs & Qualidade
+loguru>=0.7.0
+pydantic>=2.7.0

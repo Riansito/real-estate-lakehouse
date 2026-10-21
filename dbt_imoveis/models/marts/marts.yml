@@ -1,0 +1,180 @@
+version: 2
+
+models:
+  - name: dim_anuncios_ativos
+    description: >
+      Tabela dimensional da camada Gold contendo a visão atual e ativa de cada anúncio de apartamento.
+      Combina a última coleta da camada Silver com a dimensão temporal SCD Tipo 2 (snp_historico_precos),
+      calculando desvios em relação à média do bairro para identificar oportunidades imobiliárias.
+    columns:
+      - name: surrogate_key
+        description: "Chave primária do anúncio (MD5 de source_portal e portal_listing_id)."
+        tests:
+          - unique
+          - not_null
+
+      - name: property_fingerprint
+        description: "Hash canônico do imóvel real para agrupamento e deduplicação entre portais."
+        tests:
+          - not_null
+
+      - name: source_portal
+        description: "Portal imobiliário de origem."
+        tests:
+          - not_null
+
+      - name: portal_listing_id
+        description: "Identificador do anúncio no portal."
+        tests:
+          - not_null
+
+      - name: titulo
+        description: "Título anunciado do imóvel."
+
+      - name: preco
+        description: "Preço atual de venda anunciado."
+        tests:
+          - not_null
+
+      - name: valor_condominio
+        description: "Taxa mensal de condomínio em Reais."
+
+      - name: valor_iptu
+        description: "Valor do IPTU."
+
+      - name: area_util_m2
+        description: "Área útil/privativa do imóvel em metros quadrados."
+
+      - name: preco_m2
+        description: "Preço por m² útil calculado."
+
+      - name: quartos
+        description: "Quantidade de quartos."
+
+      - name: banheiros
+        description: "Quantidade de banheiros."
+        tests:
+          - not_null
+
+      - name: vagas
+        description: "Quantidade de vagas de garagem."
+        tests:
+          - not_null
+
+      - name: rua
+        description: "Logradouro do imóvel."
+
+      - name: bairro
+        description: "Nome do bairro padronizado em caixa baixa e sem acentos."
+        tests:
+          - not_null
+
+      - name: bairro_raw
+        description: "Nome do bairro original."
+
+      - name: cidade
+        description: "Cidade de localização do imóvel."
+        tests:
+          - not_null
+
+      - name: estado
+        description: "Estado da federação (UF)."
+
+      - name: cep
+        description: "Código postal."
+
+      - name: latitude
+        description: "Latitude geográfica."
+
+      - name: longitude
+        description: "Longitude geográfica."
+
+      - name: comodidades
+        description: "Array JSONB de comodidades do condomínio/apartamento."
+
+      - name: tipo_anunciante
+        description: "Tipo de anunciante (ex: IMOBILIARIA, PROPRIETARIO)."
+
+      - name: ultima_coleta
+        description: "Timestamp da coleta mais recente deste anúncio."
+        tests:
+          - not_null
+
+      - name: preco_vigente_desde
+        description: "Timestamp de quando este preço atual passou a vigorar (do snapshot SCD2)."
+        tests:
+          - not_null
+
+      - name: preco_m2_medio_bairro
+        description: "Preço médio do m² no mesmo bairro/cidade."
+
+      - name: diferenca_percentual_bairro
+        description: "Percentual de variação do preço/m² deste imóvel em relação à média do bairro."
+
+      - name: status_oportunidade
+        description: "Sinalizador de oportunidade de compra ('ABAIXO_DA_MEDIA', 'REGULAR', 'ACIMA_DA_MEDIA')."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['ABAIXO_DA_MEDIA', 'REGULAR', 'ACIMA_DA_MEDIA']
+
+  - name: fct_metricas_bairro_diarias
+    description: >
+      Tabela agregada de fatos da camada Gold com indicadores de mercado consolidados por bairro e data.
+      Otimizada para consultas analíticas rápidas de médias, medianas e contagens da API REST.
+    columns:
+      - name: id_metrica
+        description: "Chave primária surrogate da métrica (MD5 de cidade, bairro e data)."
+        tests:
+          - unique
+          - not_null
+
+      - name: cidade
+        description: "Cidade agregada."
+        tests:
+          - not_null
+
+      - name: bairro
+        description: "Bairro padronizado agregado."
+        tests:
+          - not_null
+
+      - name: data_referencia
+        description: "Data civil de referência das métricas."
+        tests:
+          - not_null
+
+      - name: total_anuncios_ativos
+        description: "Total de imóveis com anúncios ativos no bairro na data de referência."
+        tests:
+          - not_null
+
+      - name: preco_medio
+        description: "Preço médio de venda dos apartamentos do bairro."
+        tests:
+          - not_null
+
+      - name: preco_mediano
+        description: "Preço mediano de venda (P50) dos apartamentos do bairro."
+        tests:
+          - not_null
+
+      - name: preco_m2_medio
+        description: "Preço médio do metro quadrado no bairro."
+
+      - name: preco_m2_mediano
+        description: "Preço mediano do metro quadrado no bairro."
+
+      - name: area_media_m2
+        description: "Área útil média dos apartamentos no bairro."
+
+      - name: total_oportunidades_abaixo_media
+        description: "Quantidade de apartamentos classificados como oportunidade (abaixo da média) no bairro."
+        tests:
+          - not_null
+
+      - name: atualizado_em
+        description: "Timestamp da última atualização das métricas."
+        tests:
+          - not_null

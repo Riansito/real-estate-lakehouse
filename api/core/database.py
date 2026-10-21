@@ -8,7 +8,10 @@ from sqlalchemy.orm import declarative_base
 from api.core.config import settings
 
 # Configuração do Engine Assíncrono com SSL para Neon Postgres
-connect_args = {}
+connect_args = {
+    "timeout": 30,
+    "command_timeout": 30,
+}
 if settings.POSTGRES_SSL:
     connect_args["ssl"] = settings.POSTGRES_SSL
 
@@ -16,6 +19,7 @@ async_engine = create_async_engine(
     settings.async_database_url,
     connect_args=connect_args,
     pool_pre_ping=True,
+    pool_recycle=300,
     pool_size=10,
     max_overflow=20,
     echo=settings.DEBUG,

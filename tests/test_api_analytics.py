@@ -4,6 +4,7 @@ Testes unitários e de integração para os endpoints analíticos da API (BACK-0
 - GET /api/v1/metricas/bairros
 - GET /api/v1/historico-precos/{id}
 """
+import asyncio
 from pathlib import Path
 import unittest
 from httpx import AsyncClient, ASGITransport
@@ -23,9 +24,19 @@ class TestApiAnalytics(unittest.IsolatedAsyncioTestCase):
         from api.core.database import async_engine
         await async_engine.dispose()
 
+    async def _get(self, url: str, max_retries: int = 3):
+        """Helper com retry para tolerância a variações de latência em bancos de dados em nuvem."""
+        for attempt in range(max_retries):
+            try:
+                return await self.client.get(url)
+            except Exception:
+                if attempt == max_retries - 1:
+                    raise
+                await asyncio.sleep(1.0)
+
     async def test_get_oportunidades_default(self):
         """Valida listagem de oportunidades com ordenação por maior desconto."""
-        response = await self.client.get("/api/v1/oportunidades")
+        response = await self._get("/api/v1/oportunidades")
         self.assertEqual(response.status_code, 200)
         data = response.json()
 
@@ -41,7 +52,7 @@ class TestApiAnalytics(unittest.IsolatedAsyncioTestCase):
 
     async def test_get_oportunidades_filters(self):
         """Valida filtros de bairro e desconto mínimo em /oportunidades."""
-        response = await self.client.get("/api/v1/oportunidades?bairro=moema&desconto_min_pct=20.0")
+        response = await self._get("/api/v1/oportunidades?bairro=moema&desconto_min_pct=20.0")
         self.assertEqual(response.status_code, 200)
         data = response.json()
 
@@ -51,7 +62,7 @@ class TestApiAnalytics(unittest.IsolatedAsyncioTestCase):
 
     async def test_get_metricas_bairros_list(self):
         """Valida listagem consolidada de métricas por bairro."""
-        response = await self.client.get("/api/v1/metricas/bairros")
+        response = await self._get("/api/v1/metricas/bairros")
         self.assertEqual(response.status_code, 200)
         data = response.json()
 
@@ -69,7 +80,7 @@ class TestApiAnalytics(unittest.IsolatedAsyncioTestCase):
 
     async def test_get_metricas_bairros_filter(self):
         """Valida filtro por bairro em /metricas/bairros."""
-        response = await self.client.get("/api/v1/metricas/bairros?bairro=moema")
+        response = await self._get("/api/v1/metricas/bairros?bairro=moema")
         self.assertEqual(response.status_code, 200)
         data = response.json()
 
@@ -80,13 +91,13 @@ class TestApiAnalytics(unittest.IsolatedAsyncioTestCase):
     async def test_get_historico_precos_success(self):
         """Valida busca do histórico SCD2 por surrogate_key e por portal_listing_id."""
         # 1. Obtém um anúncio ativo para teste
-        list_res = await self.client.get("/api/v1/imoveis?page_size=1")
+        list_res = await self._get("/api/v1/imoveis?page_size=1")
         anuncio = list_res.json()["items"][0]
         surrogate_key = anuncio["surrogate_key"]
         portal_listing_id = anuncio["portal_listing_id"]
 
         # 2. Busca por surrogate_key
-        hist_res = await self.client.get(f"/api/v1/historico-precos/{surrogate_key}")
+        hist_res = await self._get(f"/api/v1/historico-precos/{surrogate_key}")
         self.assertEqual(hist_res.status_code, 200)
         hist_data = hist_res.json()
 
@@ -96,13 +107,13 @@ class TestApiAnalytics(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(any(item["is_current"] for item in hist_data["historico"]))
 
         # 3. Busca por portal_listing_id
-        hist_by_portal_res = await self.client.get(f"/api/v1/historico-precos/{portal_listing_id}")
+        hist_by_portal_res = await self._get(f"/api/v1/historico-precos/{portal_listing_id}")
         self.assertEqual(hist_by_portal_res.status_code, 200)
         self.assertEqual(hist_by_portal_res.json()["surrogate_key"], surrogate_key)
 
     async def test_get_historico_precos_not_found(self):
         """Valida 404 quando o histórico não existe para o identificador informado."""
-        hist_res = await self.client.get("/api/v1/historico-precos/id_inexistente_123456")
+        hist_res = await self._get("/api/v1/historico-precos/id_inexistente_123456")
         self.assertEqual(hist_res.status_code, 404)
         error = hist_res.json()
         self.assertIn("detail", error)

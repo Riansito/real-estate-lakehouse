@@ -17,3 +17,6 @@ psycopg[binary]>=3.1.0
 # Utilitários, Logs & Qualidade
 loguru>=0.7.0
 pydantic>=2.7.0
+
+# Modelagem & Transformação (dbt)
+dbt-postgres>=1.8.0

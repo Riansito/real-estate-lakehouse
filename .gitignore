@@ -35,6 +35,7 @@ ENV/
 target/
 dbt_packages/
 logs/
+.user.yml
 
 # IDE & OS
 .idea/

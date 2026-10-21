@@ -1,0 +1,46 @@
+# ==============================================================================
+# PROJETO DBT: Lakehouse de Imóveis (dbt_imoveis)
+# Padrão ELT Moderno: Staging (View) -> Silver (Table) -> Gold (Marts / SCD2)
+# ==============================================================================
+
+name: 'dbt_imoveis'
+version: '1.0.0'
+config-version: 2
+
+# Profile correspondente configurado em profiles.yml
+profile: 'dbt_imoveis'
+
+# Diretórios padrão do projeto dbt
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Configuração de Materializações por Camada Analítica
+models:
+  dbt_imoveis:
+    # Camada Staging: extração direta do JSONB e tipagem inicial (Materializada como VIEW)
+    staging:
+      +schema: staging
+      +materialized: view
+
+    # Camada Silver / Intermediate: limpeza, filtros de sanidade e deduplicação técnica (TABLE)
+    intermediate:
+      +schema: silver
+      +materialized: table
+
+    # Camada Gold / Marts: modelos dimensionais, agregados de negócio e métricas para a API (TABLE)
+    marts:
+      +schema: gold
+      +materialized: table
+
+# Configuração de Snapshots (SCD Tipo 2 para histórico de preços)
+snapshots:
+  dbt_imoveis:
+    +target_schema: gold

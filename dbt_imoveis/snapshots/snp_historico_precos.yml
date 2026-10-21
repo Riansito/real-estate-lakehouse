@@ -1,0 +1,54 @@
+version: 2
+
+snapshots:
+  - name: snp_historico_precos
+    description: >
+      Snapshot SCD Tipo 2 (Slowly Changing Dimensions) da camada Gold do Data Lakehouse.
+      Rastreia historicamente todas as alterações de preço de venda, taxa de condomínio e IPTU
+      ao longo do tempo para cada anúncio (surrogate_key), gerando datas de vigência
+      (dbt_valid_from e dbt_valid_to) sem nunca sobrescrever ou deletar dados históricos.
+    columns:
+      - name: surrogate_key
+        description: "Chave substituta única do anúncio (MD5 de source_portal e portal_listing_id)."
+        tests:
+          - not_null
+
+      - name: source_portal
+        description: "Identificador do portal de origem (ex: quinto_andar, chaves_na_mao)."
+        tests:
+          - not_null
+
+      - name: portal_listing_id
+        description: "ID do anúncio no portal de origem."
+        tests:
+          - not_null
+
+      - name: preco
+        description: "Preço de venda anunciado em Reais no período de vigência."
+        tests:
+          - not_null
+
+      - name: valor_condominio
+        description: "Taxa mensal de condomínio em Reais no período de vigência."
+
+      - name: valor_iptu
+        description: "Valor do IPTU no período de vigência."
+
+      - name: scraped_at
+        description: "Timestamp da extração mais recente que atualizou ou validou este registro."
+        tests:
+          - not_null
+
+      - name: dbt_scd_id
+        description: "Chave primária surrogate gerada pelo dbt para identificar exclusivamente esta versão temporal do registro."
+        tests:
+          - not_null
+          - unique
+
+      - name: dbt_valid_from
+        description: "Data/hora de início da vigência deste preço/taxa."
+        tests:
+          - not_null
+
+      - name: dbt_valid_to
+        description: "Data/hora de término da vigência deste preço/taxa (NULL se for o valor atualmente vigente)."

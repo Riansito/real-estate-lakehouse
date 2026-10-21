@@ -1,0 +1,35 @@
+version: 2
+
+sources:
+  - name: raw
+    schema: raw
+    description: "Camada Bronze / Landing Zone contendo os envelopes brutos coletados do Data Lake."
+    tables:
+      - name: landing_anuncios
+        description: "Tabela append-only com o payload bruto JSONB dos anúncios de apartamentos."
+        columns:
+          - name: id
+            description: "Chave primária sequencial da linha de pouso no DW."
+            tests:
+              - unique
+              - not_null
+          - name: source_portal
+            description: "Identificador do portal de origem (ex: quinto_andar, chaves_na_mao, zap_imoveis)."
+            tests:
+              - not_null
+          - name: portal_listing_id
+            description: "ID do anúncio fornecido pelo portal imobiliário."
+            tests:
+              - not_null
+          - name: scraped_at
+            description: "Timestamp UTC em que a extração foi executada."
+            tests:
+              - not_null
+          - name: batch_id
+            description: "Identificador UUID do lote da esteira de ingestão."
+            tests:
+              - not_null
+          - name: payload
+            description: "Documento semiestruturado JSONB completo contendo todos os atributos extraídos."
+            tests:
+              - not_null

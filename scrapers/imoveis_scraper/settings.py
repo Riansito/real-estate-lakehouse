@@ -65,6 +65,14 @@ AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 AWS_REGION_NAME = os.getenv("AWS_REGION", "us-east-2")
 S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME", "raw-imoveis")
+MINIO_PIPELINE_ENABLED = os.getenv("MINIO_PIPELINE_ENABLED", "True").lower() in ("true", "1", "t")
+
+# ==============================================================================
+# ITEM PIPELINES (ARMAZENAMENTO EM DATA LAKE)
+# ==============================================================================
+ITEM_PIPELINES = {
+    "imoveis_scraper.pipelines.MinIOStoragePipeline": 300,
+}
 
 # Encoding e Compatibilidade
 FEED_EXPORT_ENCODING = "utf-8"

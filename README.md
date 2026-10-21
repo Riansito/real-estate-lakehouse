@@ -101,6 +101,10 @@ dbt Snapshot (SCD2)   dbt Gold (Marts)          │
                  (/docs / redoc)               (Investidores & BI)
 ```
 
+Imagem Ilustrativa
+<img width="1672" height="941" alt="Arquitetura Lakehouse Imobiliária e Scraping" src="https://github.com/user-attachments/assets/e10fd6fd-dea8-4c56-b79d-0b539dd4e950" />
+
+
 ---
 
 # ⚙ Tecnologias Utilizadas

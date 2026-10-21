@@ -1,0 +1,123 @@
+version: 2
+
+models:
+  - name: int_anuncios_diarios
+    description: >
+      Camada Silver / Intermediate. Tabela limpa, saneada e consolidada de anúncios por dia civil.
+      Aplica a Deduplicação Técnica de Coleta (Nível 1) garantindo idempotência caso múltiplos
+      scrapers tenham rodado no mesmo dia, normaliza bairros e remove outliers de preços.
+    columns:
+      - name: surrogate_key
+        description: "Chave substituta única do anúncio (MD5 de source_portal + portal_listing_id)."
+        tests:
+          - not_null
+
+      - name: property_fingerprint
+        description: >
+          Hash canônico de identificação do imóvel real (Nível 2) combinando cidade, bairro normalizado,
+          rua, área útil arredondada, quartos e vagas.
+        tests:
+          - not_null
+
+      - name: landing_id
+        description: "ID de pouso original da linha em raw.landing_anuncios."
+        tests:
+          - not_null
+
+      - name: source_portal
+        description: "Identificador do portal de coleta (ex: quinto_andar, chaves_na_mao)."
+        tests:
+          - not_null
+
+      - name: portal_listing_id
+        description: "Identificador original do anúncio no portal."
+        tests:
+          - not_null
+
+      - name: batch_id
+        description: "Identificador do lote da esteira de ingestão."
+        tests:
+          - not_null
+
+      - name: url
+        description: "URL canônica do anúncio no portal."
+
+      - name: titulo
+        description: "Título limpo do anúncio."
+
+      - name: preco
+        description: "Preço de venda saneado (entre R$ 50.000 e R$ 100.000.000)."
+        tests:
+          - not_null
+
+      - name: valor_condominio
+        description: "Valor mensal de condomínio em Reais."
+
+      - name: valor_iptu
+        description: "Valor de IPTU informado."
+
+      - name: area_util_m2
+        description: "Área útil privativa em m² (filtrada entre 10 e 3.000 m²; fora disso é anulada para não distorcer médias)."
+
+      - name: preco_m2
+        description: "Preço por metro quadrado útil calculado (preco / area_util_m2)."
+
+      - name: quartos
+        description: "Número de quartos saneado (entre 0 e 20)."
+
+      - name: banheiros
+        description: "Número de banheiros saneado (mínimo de 1 e teto de 20)."
+        tests:
+          - not_null
+
+      - name: vagas
+        description: "Número de vagas de garagem saneado (mínimo de 0)."
+        tests:
+          - not_null
+
+      - name: rua
+        description: "Logradouro informado no endereço."
+
+      - name: bairro
+        description: "Nome do bairro normalizado (caixa baixa, sem acentos para agregações analíticas consistentes)."
+
+      - name: bairro_raw
+        description: "Nome do bairro no formato original da extração."
+
+      - name: cidade
+        description: "Cidade de localização do imóvel."
+        tests:
+          - not_null
+
+      - name: estado
+        description: "Sigla do estado da federação (ex: SP)."
+
+      - name: cep
+        description: "Código postal formatado."
+
+      - name: latitude
+        description: "Latitude geográfica."
+
+      - name: longitude
+        description: "Longitude geográfica."
+
+      - name: comodidades
+        description: "Array JSONB de comodidades e itens do condomínio."
+
+      - name: tipo_anunciante
+        description: "Perfil do anunciante (IMOBILIARIA, PROPRIETARIO, etc.)."
+
+      - name: data_coleta
+        description: "Data civil da coleta utilizada na partição de deduplicação diária (Nível 1)."
+        tests:
+          - not_null
+
+      - name: scraped_at
+        description: "Timestamp UTC da extração mais recente mantida para o anúncio no dia."
+        tests:
+          - not_null
+
+      - name: carregado_em
+        description: "Timestamp em que o registro bruto foi inserido no Data Lakehouse."
+        tests:
+          - not_null

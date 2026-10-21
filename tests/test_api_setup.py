@@ -17,6 +17,11 @@ from api.schemas.historico import HistoricoPrecoResponse
 class TestApiSetup(unittest.IsolatedAsyncioTestCase):
     """Valida a infraestrutura básica e endpoints da aplicação FastAPI."""
 
+    async def asyncTearDown(self):
+        """Libera o pool de conexões do event loop atual."""
+        from api.core.database import async_engine
+        await async_engine.dispose()
+
     def test_settings_loaded(self):
         """Valida se as configurações básicas da API foram carregadas."""
         self.assertEqual(settings.PROJECT_NAME, "Real Estate Lakehouse API")

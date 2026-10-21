@@ -11,6 +11,7 @@ from sqlalchemy import text
 from api.core.config import settings
 from api.core.database import async_engine
 from api.routers.health import router as health_router
+from api.routers.imoveis import router as imoveis_router
 
 
 @asynccontextmanager
@@ -57,3 +58,4 @@ app.add_middleware(
 
 # Inclusão dos Roteadores
 app.include_router(health_router)
+app.include_router(imoveis_router, prefix=settings.API_V1_STR)

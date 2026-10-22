@@ -284,27 +284,7 @@ O dbt executa o pipeline em sequência:
 ## 4. Orquestração Diária (Apache Airflow)
 A DAG `dag_imoveis_lakehouse_pipeline` executa todos os dias às 06:00 UTC (03:00 Horário de Brasília) de forma automática:
 
-```text
-[start_pipeline]
-       │
-       ▼
-[scrape_real_estate_portals]
-       │
-       ▼
-[ingest_lake_to_postgres]
-       │
-       ▼
-[dbt_run_transformations]
-       │
-       ▼
-[dbt_snapshot_scd2]
-       │
-       ▼
-[dbt_test_quality_gates]
-       │
-       ▼
-[end_pipeline]
-```
+<img width="1882" height="873" alt="Captura de tela 2026-10-22 104347" src="https://github.com/user-attachments/assets/3b4e45ec-3697-41dd-b03c-c8e9cb104b28" />
 
 ---
 

@@ -238,7 +238,11 @@ A modelagem de dados foi desenhada seguindo os princípios de ELT moderno e arqu
 
 ## 2. Camada Staging (Views)
 * **`stg_anuncios`**: Extrai campos estruturados do `JSONB` via operadores nativos do PostgreSQL (`->>`). Cria uma chave substituta determinística (`surrogate_key`) calculada por hash MD5:
-  $$\text{surrogate\_key} = \text{MD5}(\text{source\_portal} \parallel \text{portal\_listing\_id})$$
+
+  ```math
+  \text{surrogate}\_\text{key} = \text{MD5}(\text{source}\_\text{portal} \parallel \text{portal}\_\text{listing}\_\text{id})
+  ```
+
 * Padroniza nomes de colunas, formatações de data e tipagem estrita (preço, condomínio, IPTU, área útil, quartos, banheiros, vagas, latitude e longitude).
 
 ## 3. Camada Silver / Intermediate (Tables)

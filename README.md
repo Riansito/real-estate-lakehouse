@@ -1,4 +1,4 @@
-# 🏢 Real Estate Lakehouse & Scraping Platform
+# 🏢 Real Estate Scraping Platform
 
 > Pipeline moderno de Engenharia de Dados ponta a ponta no setor imobiliário: Web Scraping resiliente, Data Lake S3/MinIO, Data Warehouse PostgreSQL, modelagem dimensional em camadas Medalhão com dbt (SCD Tipo 2), orquestração via Apache Airflow e API REST analítica de alta performance com FastAPI.
 

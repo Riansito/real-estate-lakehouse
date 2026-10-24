@@ -102,7 +102,9 @@ dbt Snapshot (SCD2)   dbt Gold (Marts)          │
 ```
 
 Imagem Ilustrativa
-<img width="1672" height="941" alt="Arquitetura MDW (Data Lake + Data Warehouse) e Scraping" src="https://github.com/user-attachments/assets/e10fd6fd-dea8-4c56-b79d-0b539dd4e950" />
+<img width="1671" height="941" alt="Plataforma Imobiliária MDW e Scraping" src="https://github.com/user-attachments/assets/83cdad24-7a83-4089-8118-f33a9b32dec0" />
+
+
 
 
 ---

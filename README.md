@@ -10,7 +10,7 @@ O mercado imobiliário brasileiro movimenta bilhões de reais anualmente, porém
 
 Acompanhar tendências de valorização por metro quadrado, identificar oportunidades reais de investimento (imóveis cotados significativamente abaixo da média da região) e auditar o histórico de alterações de preços exige uma arquitetura de dados robusta, capaz de operar tanto no nível de dados não estruturados brutos quanto na entrega analítica refinada.
 
-Este projeto resolve essa dor de negócio construindo um **Data Lakehouse Moderno baseado na Arquitetura Medalhão (Bronze/Raw, Silver/Intermediate e Gold/Marts)**:
+Este projeto resolve essa dor de negócio construindo uma arquitetura de **Modern Data Warehouse (MDW)** — combinando **Data Lake** (armazenamento de arquivos brutos não estruturados) e **Data Warehouse** (modelagem relacional e analítica com PostgreSQL e dbt) baseada na **Arquitetura Medalhão (Bronze/Raw, Silver/Intermediate e Gold/Marts)**:
 1. **Extração & Carga Bruta (EL)**: Scrapers modulares extraem anúncios de portais imobiliários e os persistem comprimidos em `.jsonl.gz` em um Data Lake S3/MinIO.
 2. **Ingestão Incremental**: Uma rotina de alta performance lê os novos lotes e os grava em uma tabela de pouso com envelope `JSONB` no PostgreSQL.
 3. **Transformação & Modelagem (T)**: O **dbt Core** orquestra modelos estruturados, tratando deduplicação diária, sanitização, regras de negócio e **Slowly Changing Dimensions (SCD Tipo 2)** para rastrear cada centavo de variação de preço.
@@ -28,7 +28,7 @@ Os principais desafios enfrentados incluem:
 * **Disparidade Estrutural das Fontes**: Cada portal imobiliário possui layouts, APIs internas e esquemas de dados proprietários.
 * **Bloqueios e Rate Limiting**: Necessidade de contornar proteções antibot sem comprometer a estabilidade do crawler.
 * **Fidelidade e Idempotência**: Impossibilidade de descartar metadados originais; reprocessar coletas repetidas do mesmo dia não pode gerar dados duplicados.
-* **Rastreabilidade de Preços (SCD Type 2)**: Um imóvel pode ser anunciado por R$ 500.000, cair para R$ 450.000 duas semanas depois e ser finalizado em R$ 430.000. Modelos tradicionais sobrescrevem esse valor; o Lakehouse precisa reter a validade temporal (`valid_from` / `valid_to`).
+* **Rastreabilidade de Preços (SCD Type 2)**: Um imóvel pode ser anunciado por R$ 500.000, cair para R$ 450.000 duas semanas depois e ser finalizado em R$ 430.000. Modelos tradicionais sobrescrevem esse valor; a arquitetura MDW precisa reter a validade temporal (`valid_from` / `valid_to`) no Data Warehouse.
 * **Identificação de Oportunidades**: Investidores demandam respostas rápidas: *quais imóveis em determinado bairro estão pelo menos 15% abaixo do preço médio do m² local?*
 
 O objetivo desta plataforma é transformar dados imobiliários brutos e dispersos da internet em inteligência acionável e estruturada para investidores, imobiliárias e tomadores de decisão.
@@ -102,7 +102,7 @@ dbt Snapshot (SCD2)   dbt Gold (Marts)          │
 ```
 
 Imagem Ilustrativa
-<img width="1672" height="941" alt="Arquitetura Lakehouse Imobiliária e Scraping" src="https://github.com/user-attachments/assets/e10fd6fd-dea8-4c56-b79d-0b539dd4e950" />
+<img width="1672" height="941" alt="Arquitetura MDW (Data Lake + Data Warehouse) e Scraping" src="https://github.com/user-attachments/assets/e10fd6fd-dea8-4c56-b79d-0b539dd4e950" />
 
 
 ---
@@ -227,7 +227,7 @@ real-estate-lakehouse/
 
 ---
 
-# 📊 Modelagem Lakehouse (Medalhão)
+# 📊 Modelagem no Modern Data Warehouse (MDW - Medalhão)
 
 A modelagem de dados foi desenhada seguindo os princípios de ELT moderno e arquitetura Medalhão:
 
@@ -446,4 +446,4 @@ python -m unittest discover -s tests
 
 Estudante de Sistemas de Informação na UFPB, com foco em Engenharia de Dados e Analytics.
 
-Este projeto foi desenvolvido com o propósito de consolidar conhecimentos práticos em Arquitetura de Data Lakehouse moderna, pipelines ELT idempotentes, dbt, modelagem dimensional com SCD Tipo 2, desenvolvimento de APIs assíncronas de alta performance e orquestração de missões críticas com Apache Airflow.
+Este projeto foi desenvolvido com o propósito de consolidar conhecimentos práticos em Arquitetura de Modern Data Warehouse (MDW) unindo Data Lake e Data Warehouse, pipelines ELT idempotentes, dbt, modelagem dimensional com SCD Tipo 2, desenvolvimento de APIs assíncronas de alta performance e orquestração de missões críticas com Apache Airflow.
